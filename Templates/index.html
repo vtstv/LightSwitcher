@@ -1,5 +1,4 @@
-﻿<!-- index.html -->
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,39 +7,94 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f2f2f2;
             margin: 0;
             padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
+            transition: background-color 0.3s;
         }
 
         #container {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            transition: background-color 0.3s;
         }
 
         h1 {
             color: #333;
+            margin-bottom: 20px;
         }
 
         p {
             color: #666;
+            margin-bottom: 20px;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 16px;
             cursor: pointer;
-            background-color: #4caf50;
-            color: #fff;
             border: none;
             border-radius: 4px;
+            margin: 10px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+            button.on {
+                background-color: #4caf50; /* Green when on */
+                color: #fff;
+            }
+
+            button.off {
+                background-color: #ccc; /* Gray when off */
+                color: #666;
+            }
+
+        #rgbStatus {
+            margin-top: 20px;
+            color: #666;
+        }
+
+        #toggleThemeButton {
+            background-color: #007bff; /* Blue for the theme button */
+            color: #fff;
+        }
+
+        #rgbButton {
+            background-color: #555; /* Dark color for the RGB button */
+            color: #fff;
+        }
+
+        @media (max-width: 600px) {
+            button {
+                width: 100%;
+            }
+        }
+
+        /* Dark theme styles */
+        body.dark {
+            background-color: #333;
+        }
+
+        #container.dark {
+            background-color: #444;
+        }
+
+        h1.dark, p.dark {
+            color: #fff;
+        }
+
+        button.dark {
+            background-color: #555;
+            color: #fff;
         }
     </style>
 </head>
@@ -48,7 +102,10 @@
     <div id="container">
         <h1>Light Control</h1>
         <p id="status">Current Status: Light is off.</p>
+        <p id="rgbStatus">RGB Mode is off.</p>
         <button id="toggleButton" onclick="toggleLight()">Turn On Light</button>
+        <button id="rgbButton" onclick="toggleRGBMode()">Toggle RGB Mode</button>
+        <button id="toggleThemeButton" onclick="toggleTheme()">Toggle Theme</button>
 
         <script>
             function toggleLight() {
@@ -63,9 +120,53 @@
                     .catch(error => console.error('Error:', error));
             }
 
+            function toggleTheme() {
+                var bodyElement = document.body;
+                var containerElement = document.getElementById('container');
+
+                if (bodyElement.classList.contains('dark')) {
+                    bodyElement.classList.remove('dark');
+                    containerElement.classList.remove('dark');
+                } else {
+                    bodyElement.classList.add('dark');
+                    containerElement.classList.add('dark');
+                }
+            }
+
+            function toggleRGBMode() {
+                fetch('/toggleRGB')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('HTTP error! Status: ' + response.status);
+                        }
+                        return response.text();
+                    })
+                    .then(updateRGBMode)
+                    .catch(error => console.error('Error:', error));
+            }
+
             function updateStatus(newStatus) {
-                document.getElementById('status').innerText = 'Current Status: Light is ' + newStatus + '.';
-                document.getElementById('toggleButton').innerText = 'Turn ' + (newStatus === 'on' ? 'Off' : 'On') + ' Light';
+                var statusElement = document.getElementById('status');
+                var buttonElement = document.getElementById('toggleButton');
+
+                statusElement.innerText = 'Current Status: Light is ' + newStatus + '.';
+                buttonElement.innerText = 'Turn ' + (newStatus === 'on' ? 'Off' : 'On') + ' Light';
+
+                // Toggle button color based on state
+                buttonElement.classList.remove('on', 'off');
+                buttonElement.classList.add(newStatus);
+            }
+
+            function updateRGBMode(newMode) {
+                var rgbStatusElement = document.getElementById('rgbStatus');
+                var rgbButton = document.getElementById('rgbButton');
+
+                rgbStatusElement.innerText = 'RGB Mode is ' + newMode + '.';
+                rgbButton.innerText = 'Toggle RGB Mode';
+
+                // Adjust the button color based on state
+                rgbButton.classList.remove('on', 'off');
+                rgbButton.classList.add(newMode);
             }
         </script>
     </div>

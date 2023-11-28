@@ -9,6 +9,12 @@ namespace LightSwitcher
     public class Startup
     {
         private LightStatus lightStatus = new LightStatus { IsLightOn = false };
+        private bool rgbMode = false;
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddSingleton(lightStatus);
+        }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -28,7 +34,7 @@ namespace LightSwitcher
                     else
                     {
                         context.Response.StatusCode = 500; // Internal Server Error
-                        await context.Response.WriteAsync("Template file not found.");
+                        await context.Response.WriteAsync($"Template file not found. Path: {templatePath}");
                     }
                 });
 
@@ -37,8 +43,13 @@ namespace LightSwitcher
                     lightStatus.IsLightOn = !lightStatus.IsLightOn;
                     await context.Response.WriteAsync(lightStatus.IsLightOn ? "on" : "off");
                 });
+
+                endpoints.MapGet("/toggleRGB", async context =>
+                {
+                    rgbMode = !rgbMode;
+                    await context.Response.WriteAsync(rgbMode ? "on" : "off");
+                });
             });
         }
-
     }
 }
