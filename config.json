@@ -1,0 +1,4 @@
+﻿{
+  "ServerPort": 5001,
+  "StatusCommandEndpoint": "http://localhost:6000/status"
+}
